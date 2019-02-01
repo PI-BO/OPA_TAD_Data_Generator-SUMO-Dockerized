@@ -19,25 +19,16 @@ fi
 
 time_script_start=$(date +%s)
 
-# download osm-data from geofabrik.de. The URLs of good candidates are:
-# Germany:                              http://download.geofabrik.de/europe/germany-latest.osm.bz2
-#  - Berlin:                            http://download.geofabrik.de/europe/germany/berlin-latest.osm.bz2
-#  - Bremen:                            http://download.geofabrik.de/europe/germany/bremen-latest.osm.bz2
-#  - Hamburg:                           http://download.geofabrik.de/europe/germany/hamburg-latest.osm.bz2
-#  - Hessen:                            http://download.geofabrik.de/europe/germany/hessen-latest.osm.bz2
-#  - Nordrhein-Westfalen:               http://download.geofabrik.de/europe/germany/nordrhein-westfalen-latest.osm.bz2
-#  -    Regierungsbezirk Arnsberg:      http://download.geofabrik.de/europe/germany/nordrhein-westfalen/arnsberg-regbez-latest.osm.bz2
-#  - Saarland:                          http://download.geofabrik.de/europe/germany/saarland-latest.osm.bz2
-
-#define url for map download
-#mapdownloadurl="http://download.geofabrik.de/europe/germany-latest.osm.bz2"
-#mapdownloadurl="http://download.geofabrik.de/europe/germany/berlin-latest.osm.bz2"
-mapdownloadurl="http://download.geofabrik.de/europe/germany/bremen-latest.osm.bz2"
-#mapdownloadurl="http://download.geofabrik.de/europe/germany/hamburg-latest.osm.bz2"
-#mapdownloadurl="http://download.geofabrik.de/europe/germany/hessen-latest.osm.bz2"
-#mapdownloadurl="http://download.geofabrik.de/europe/germany/nordrhein-westfalen-latest.osm.bz2"
-#mapdownloadurl="http://download.geofabrik.de/europe/germany/nordrhein-westfalen/arnsberg-regbez-latest.osm.bz2"
-#mapdownloadurl="http://download.geofabrik.de/europe/germany/saarland-latest.osm.bz2"
+# Download OSM data from geofabrik.de.
+# Define some pairs (url filename) for map download:
+#mapdownloadurl=('http://download.geofabrik.de/europe/germany-latest.osm.bz2' 'germany-latest')
+#mapdownloadurl=('http://download.geofabrik.de/europe/germany/berlin-latest.osm.bz2' 'berlin-latest')
+mapdownloadurl=('http://download.geofabrik.de/europe/germany/bremen-latest.osm.bz2' 'bremen-latest')
+#mapdownloadurl=('http://download.geofabrik.de/europe/germany/hamburg-latest.osm.bz2' 'hamburg-latest')
+#mapdownloadurl=('http://download.geofabrik.de/europe/germany/hessen-latest.osm.bz2' 'hessen-latest')
+#mapdownloadurl=('http://download.geofabrik.de/europe/germany/nordrhein-westfalen-latest.osm.bz2' nordrhein-westfalen-latest')
+#mapdownloadurl=('http://download.geofabrik.de/europe/germany/nordrhein-westfalen/arnsberg-regbez-latest.osm.bz2' 'arnsberg-regbez-latest')
+#mapdownloadurl=('http://download.geofabrik.de/europe/germany/saarland-latest.osm.bz2' 'saarland-latest')
 
 # define data folders
 #vol_base="/data/SUMO-DATA" # for use on local workstation workstation
@@ -91,8 +82,9 @@ mkdir -p ${vol_results}
 mkdir -p ${vol_logs}
 
 #variables for files related to map import
-file_osmmap="$vol_maps/mapdata.osm"
-file_network="$vol_maps/mapdata.osm.net.xml"
+file_osmmap="$vol_maps/${mapdownloadurl[1]}.osm"
+file_network="$vol_maps/${mapdownloadurl[1]}.osm.net.xml"
+file_url="${mapdownloadurl[0]}"
 file_osmtypefiles="$vol_config/osmNetconvert.typ.xml, $vol_config/osmNetconvertUrbanDe.typ.xml"
 
 #download map data if required
@@ -101,14 +93,14 @@ if [ -f "$file_osmmap".bz2 ]
     then
         echo "OSM Map data found on disk."
     else
-        echo "OSM map data not found on disk. Starting download from $mapdownloadurl to $vol_maps ..."
-        curl -o "$file_osmmap".bz2 ${mapdownloadurl}
+        echo "OSM map data file "$file_osmmap".bz2 not found on disk. Starting download from ${mapdownloadurl[0]} to $vol_maps ..."
+        curl -o "$file_osmmap".bz2 "$file_url"
 fi
 
 # expand the data and copy to maps-folder
 if [ -f "$file_osmmap" ]
     then
-        echo "Unzipped OSM map archive found in $vol_maps ."
+        echo "Unzipped OSM map archive $file_osmmap found in $vol_maps ."
     else 
         echo "Unzipping OSM map archive to $vol_maps ..."
         bunzip2 -f "$file_osmmap".bz2
@@ -129,9 +121,9 @@ echo "Prepared OSM map data for conversion to SUMO net file in $(($time_osmmap_e
 # convert mapdata to SUMO network
 if [ -f "$file_network" ]
     then
-        echo "SUMO net definition file found in $vol_maps ."
+        echo "SUMO net definition file $file_network found in $vol_maps ."
     else
-        echo "SUMO net definition file not found. Creating one from unzipped OSM map in $vol_maps ..."
+        echo "SUMO net definition file $file_network not found. Creating it from unzipped OSM map in $vol_maps ..."
         time_netconvert_start=$(date +%s)
         # standard option settings for importing net from OSM data
         #"$sumo_path"/netconvert --type-files "$file_osmtypefiles" --osm-files "$file_osmmap" --output-file "$file_network" --geometry.remove --roundabouts.guess --ramps.guess  --junctions.join --tls.guess-signals --tls.discard-simple --tls.join --no-internal-links --keep-edges.by-vclass passenger --remove-edges.by-vclass rail_slow,rail_fast,bicycle,pedestrian --remove-edges.by-type highway.track,highway.services,highway.unsurfaced --remove-edges.isolated true --message-log "$vol_logs"/netconvert.messages.log --error-log "$vol_logs"/netconvert.messages.log
