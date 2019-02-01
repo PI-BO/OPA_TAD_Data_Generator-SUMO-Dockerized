@@ -1,4 +1,22 @@
 #!/bin/bash
+###########################################################################################################
+# 2019-02-01 Christian Duentgen (duentgen@gmx.de)
+###########################################################################################################
+# Script running the SUMO microskopic traffic generator in order to generate some GPS trace data
+# If an alternative scipt sumo.bash is present in /data/config/ it will be executed instead of this 
+# demo script.
+###########################################################################################################
+
+if [ -f "/data/config/sumo2.bash" ]
+    then    
+        echo "Using alternative sumo2.bash script in /data/config."
+        source "/data/config/sumo2.bash"
+        exit 0
+    else    
+        echo "No alternative sumo2.bash script found in /data/config. "
+        echo "==> Using demo script /usr/local/share/sumo/bin/startSUMO.bash."
+fi
+
 time_script_start=$(date +%s)
 
 # download osm-data from geofabrik.de. The URLs of good candidates are:
