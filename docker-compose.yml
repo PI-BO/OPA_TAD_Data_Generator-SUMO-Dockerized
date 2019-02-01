@@ -1,0 +1,29 @@
+version: "3.2"
+
+services:
+
+  sumo1.1.0:
+    build: .
+    image: localhost:sumo1.1.0
+    networks:
+      - sumonet
+    volumes:
+      - type: bind
+        source: /data/SUMO-DATA/config
+        target: /data/config
+      - type: bind
+        source: /data/SUMO-DATA/maps
+        target: /data/maps
+      - type: bind
+        source: /data/SUMO-DATA/tmp
+        target: /data/tmp
+      - type: bind
+        source: /data/SUMO-DATA/results
+        target: /data/results
+      - type: bind
+        source: /data/SUMO-DATA/logs
+        target: /data/logs
+
+networks: 
+  sumonet:
+  
