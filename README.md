@@ -12,4 +12,4 @@ Start simulation typing:
 >docker-compose up
 
 You can run an interactive session within the container using the command:
->docker exec -it localhost:sumo1.1.0 /bin/sh -c "[ -e /bin/bash ] && /bin/bash || /bin/sh"
+>docker run -it localhost:sumo1.1.0 /bin/sh -c "[ -e /bin/bash ] && /bin/bash || /bin/sh"
