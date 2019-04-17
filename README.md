@@ -10,6 +10,10 @@ Build the container using the command:
 
 Start simulation typing:
 >docker-compose up
+The default command runs the bash script /usr/local/share/sumo/bin/startSUMO.bash that is set up in a way to use and store data in subdirectories below the current directory.
 
-You can run an interactive session within the container using the command:
->docker run -it localhost:sumo1.1.0 /bin/sh -c "[ -e /bin/bash ] && /bin/bash || /bin/sh"
+If you want to use different parameter sets, you can modify the bash script according to your needs. The file contains several examples you can try out by switching between lines commented out.
+
+You should be able to run an interactive session within a SUMO container using the command:
+>docker run -i -t "localhost:sumo1.1.0" /bin/bash
+
